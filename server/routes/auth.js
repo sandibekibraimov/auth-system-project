@@ -33,7 +33,9 @@ router.post('/register', validate, async (req, res) => {
   const userExists = await User.find({ email: req.body.email });
 
   if (!userExists) {
-    return res.status(400).send('Email already exists');
+    return res
+      .status(400)
+      .send({ success: false, message: 'Email already exists' });
   }
 
   const salt = await brcypt.genSalt(10);
@@ -48,12 +50,15 @@ router.post('/register', validate, async (req, res) => {
   try {
     const savedUser = await user.save();
     res.status(200).send({
-      id: savedUser._id,
-      fullName: savedUser.fullName,
-      email: savedUser.email,
+      success: true,
+      data: {
+        id: savedUser._id,
+        fullName: savedUser.fullName,
+        email: savedUser.email,
+      },
     });
   } catch (error) {
-    res.status(500).send('server error');
+    res.status(500).send({ success: false, message: 'server error' });
     console.log(error);
   }
 });
@@ -68,19 +73,23 @@ router.post('/login', loginValidate, async (req, res) => {
 
   const user = await User.findOne({ email: req.body.email });
   if (!user) {
-    return res.status(404).send('User is not registered');
+    return res
+      .status(404)
+      .send({ success: false, message: 'User is not registered' });
   }
 
   const validPassword = await brcypt.compare(req.body.password, user.password);
   if (!validPassword) {
-    return res.status(404).send('invalid email or password');
+    return res
+      .status(404)
+      .send({ success: false, message: 'invalid email or password' });
   }
 
   const token = jwt.sign({ id: user._id, email: user.email }, 'SUPERSECRET');
 
   res
     .header('auth-token', token)
-    .send({ message: 'Logged in succesfully', token });
+    .send({ success: true, message: 'Logged in succesfully', token });
 });
 
 module.exports = router;
