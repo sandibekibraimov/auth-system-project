@@ -23,7 +23,10 @@ const loginValidate = [
 ];
 
 const generateToken = (user) => {
-  return jwt.sign({ id: user._id, email: user.email }, 'SUPERSECRET');
+  return jwt.sign(
+    { id: user._id, email: user.email, fullName: user.fullName },
+    'SUPERSECRET'
+  );
 };
 
 // registering new user, validating with correct inputs and check if user already exists with email address
