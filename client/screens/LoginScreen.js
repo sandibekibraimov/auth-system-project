@@ -7,13 +7,23 @@ import {
   KeyboardAvoidingView,
   TextInput,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
 import React from 'react';
 import { Formik } from 'formik';
+import * as yup from 'yup';
+
+const formSchema = yup.object({
+  email: yup.string().email().required(),
+  password: yup.string().required().min(6),
+});
 
 const LoginScreen = ({ navigation }) => {
   return (
-    <KeyboardAvoidingView behavior='padding' style={{ flex: 1 }}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={{ flex: 1 }}
+    >
       <Formik
         initialValues={{
           email: '',
@@ -23,6 +33,7 @@ const LoginScreen = ({ navigation }) => {
           console.log(values);
           navigation.navigate('home');
         }}
+        validationSchema={formSchema}
       >
         {(props) => (
           <View style={styles.container}>
@@ -41,8 +52,11 @@ const LoginScreen = ({ navigation }) => {
                 keyboardType='email-address'
                 onChangeText={props.handleChange('email')}
                 value={props.values.email}
+                onBlur={props.handleBlur('email')}
               />
-
+              <Text style={styles.error}>
+                {props.touched.email && props.errors.email}
+              </Text>
               <TextInput
                 style={styles.input}
                 placeholder='Password'
@@ -50,8 +64,11 @@ const LoginScreen = ({ navigation }) => {
                 secureTextEntry={true}
                 onChangeText={props.handleChange('password')}
                 value={props.values.password}
+                onBlur={props.handleBlur('password')}
               />
-
+              <Text style={styles.error}>
+                {props.touched.password && props.errors.password}
+              </Text>
               <TouchableOpacity
                 style={styles.btnContainer}
                 onPress={props.handleSubmit}
@@ -125,6 +142,10 @@ const styles = StyleSheet.create({
     color: '#738289',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  error: {
+    color: 'red',
+    textAlign: 'center',
   },
 });
 
