@@ -23,7 +23,7 @@ const AppNavigator = () => {
           component={RegisterScreen}
           options={{ headerShown: false }}
         />
-        <Stack.Screen name='home' component={HomeScreen} />
+        <Stack.Screen ame='home' component={HomeScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

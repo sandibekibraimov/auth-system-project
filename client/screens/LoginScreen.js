@@ -11,7 +11,7 @@ import {
 import React from 'react';
 import { Formik } from 'formik';
 
-const LoginScreen = () => {
+const LoginScreen = ({ navigation }) => {
   return (
     <KeyboardAvoidingView behavior='padding' style={{ flex: 1 }}>
       <Formik
@@ -19,7 +19,10 @@ const LoginScreen = () => {
           email: '',
           password: '',
         }}
-        onSubmit={(values) => console.log(values)}
+        onSubmit={(values) => {
+          console.log(values);
+          navigation.navigate('home');
+        }}
       >
         {(props) => (
           <View style={styles.container}>
@@ -36,6 +39,8 @@ const LoginScreen = () => {
                 placeholder='Email'
                 placeholderTextColor='#fff'
                 keyboardType='email-address'
+                onChangeText={props.handleChange('email')}
+                value={props.values.email}
               />
 
               <TextInput
@@ -43,14 +48,21 @@ const LoginScreen = () => {
                 placeholder='Password'
                 placeholderTextColor='#fff'
                 secureTextEntry={true}
+                onChangeText={props.handleChange('password')}
+                value={props.values.password}
               />
 
-              <TouchableOpacity style={styles.btnContainer}>
+              <TouchableOpacity
+                style={styles.btnContainer}
+                onPress={props.handleSubmit}
+              >
                 <Text style={styles.btn}>Login</Text>
               </TouchableOpacity>
               <View style={styles.registerContainer}>
                 <Text style={styles.register}>Don't have an account?</Text>
-                <TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('register')}
+                >
                   <Text style={styles.registerBtn}>Register</Text>
                 </TouchableOpacity>
               </View>
@@ -74,8 +86,8 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   image: {
-    width: 70,
-    height: 70,
+    width: 100,
+    height: 100,
   },
   input: {
     width: 300,
