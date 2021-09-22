@@ -1,0 +1,86 @@
+const express = require('express');
+const router = express.Router();
+const User = require('../models/User');
+const { check, validationResult } = require('express-validator');
+const brcypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
+const validate = [
+  check('fullName')
+    .isLength({ min: 2 })
+    .withMessage('Your full name is required'),
+  check('email').isEmail().withMessage('Please provide a valid email'),
+  check('password')
+    .isLength({ min: 6 })
+    .withMessage('Password my be at least 6 characters'),
+];
+
+const loginValidate = [
+  check('email').isEmail().withMessage('Please provide a valid email'),
+  check('password')
+    .isLength({ min: 6 })
+    .withMessage('Password my be at least 6 characters'),
+];
+
+// registering new user, validating with correct inputs and check if user already exists with email address
+router.post('/register', validate, async (req, res) => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(422).json({ errors: errors.array() });
+  }
+
+  const userExists = await User.find({ email: req.body.email });
+
+  if (!userExists) {
+    return res.status(400).send('Email already exists');
+  }
+
+  const salt = await brcypt.genSalt(10);
+  const hasPassword = await brcypt.hash(req.body.password, salt);
+
+  const user = new User({
+    fullName: req.body.fullName,
+    email: req.body.email,
+    password: hasPassword,
+  });
+
+  try {
+    const savedUser = await user.save();
+    res.status(200).send({
+      id: savedUser._id,
+      fullName: savedUser.fullName,
+      email: savedUser.email,
+    });
+  } catch (error) {
+    res.status(500).send('server error');
+    console.log(error);
+  }
+});
+
+// checking login, email exists, password is correct
+router.post('/login', loginValidate, async (req, res) => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(422).json({ errors: errors.array() });
+  }
+
+  const user = await User.findOne({ email: req.body.email });
+  if (!user) {
+    return res.status(404).send('User is not registered');
+  }
+
+  const validPassword = await brcypt.compare(req.body.password, user.password);
+  if (!validPassword) {
+    return res.status(404).send('invalid email or password');
+  }
+
+  const token = jwt.sign({ id: user._id, email: user.email }, 'SUPERSECRET');
+
+  res
+    .header('auth-token', token)
+    .send({ message: 'Logged in succesfully', token });
+});
+
+module.exports = router;
