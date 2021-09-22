@@ -22,6 +22,10 @@ const loginValidate = [
     .withMessage('Password my be at least 6 characters'),
 ];
 
+const generateToken = (user) => {
+  return jwt.sign({ id: user._id, email: user.email }, 'SUPERSECRET');
+};
+
 // registering new user, validating with correct inputs and check if user already exists with email address
 router.post('/register', validate, async (req, res) => {
   const errors = validationResult(req);
@@ -49,6 +53,10 @@ router.post('/register', validate, async (req, res) => {
 
   try {
     const savedUser = await user.save();
+
+    // create token
+    const token = generateToken(user);
+
     res.status(200).send({
       success: true,
       data: {
@@ -56,6 +64,7 @@ router.post('/register', validate, async (req, res) => {
         fullName: savedUser.fullName,
         email: savedUser.email,
       },
+      token,
     });
   } catch (error) {
     res.status(500).send({ success: false, message: 'server error' });
@@ -85,7 +94,8 @@ router.post('/login', loginValidate, async (req, res) => {
       .send({ success: false, message: 'invalid email or password' });
   }
 
-  const token = jwt.sign({ id: user._id, email: user.email }, 'SUPERSECRET');
+  // create token
+  const token = generateToken(user);
 
   res
     .header('auth-token', token)
