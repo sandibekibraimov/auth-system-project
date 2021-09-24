@@ -65,6 +65,7 @@ const RegisterScreen = ({ navigation }) => {
               <Text style={styles.error}>
                 {props.touched.fullName && props.errors.fullName}
               </Text>
+
               <TextInput
                 style={styles.input}
                 placeholder='Email'

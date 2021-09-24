@@ -9,7 +9,6 @@ const BASE_URL = 'http://192.168.1.25:3000';
 
 // registering new user action
 export const registerUser = (newUser) => async (dispatch) => {
-  // const { fullName, email, password } = newUser;
   try {
     const registeredUser = await axios.post(
       `${BASE_URL}/api/users/register`,
@@ -29,17 +28,13 @@ export const registerUser = (newUser) => async (dispatch) => {
   }
 };
 
-export const loginUser = (newUser) => async (dispatch) => {
-  const { email, password } = newUser;
+export const loginUser = (user) => async (dispatch) => {
   try {
-    const loggedUser = await axios.post(
-      'localhost:3000/api/users/register',
-      newUser
-    );
+    const loggedUser = await axios.post(`${BASE_URL}/api/users/login`, user);
 
     dispatch({
       type: LOGIN_USER_SUCCESS,
-      payload: registerUser,
+      payload: loggedUser.data,
     });
   } catch (error) {
     console.log(error);

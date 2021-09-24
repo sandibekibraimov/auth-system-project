@@ -14,7 +14,6 @@ app.get('/', (get, res) => {
 });
 
 app.get('/api/user/profile', verifyToken, (req, res) => {
-  console.log(req.user);
   res.send({
     success: true,
     data: req.user,

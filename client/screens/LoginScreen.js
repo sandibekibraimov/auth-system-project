@@ -3,7 +3,6 @@ import {
   Text,
   Image,
   StyleSheet,
-  ScrollView,
   KeyboardAvoidingView,
   TextInput,
   TouchableOpacity,
@@ -12,6 +11,9 @@ import {
 import React from 'react';
 import { Formik } from 'formik';
 import * as yup from 'yup';
+import { useDispatch } from 'react-redux';
+
+import * as AuthActions from '../redux/actions/authActions';
 
 const formSchema = yup.object({
   email: yup.string().email().required(),
@@ -19,6 +21,7 @@ const formSchema = yup.object({
 });
 
 const LoginScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -30,8 +33,9 @@ const LoginScreen = ({ navigation }) => {
           password: '',
         }}
         onSubmit={(values) => {
-          console.log(values);
-          navigation.navigate('home');
+          dispatch(AuthActions.loginUser(values))
+            .then(() => navigation.navigate('home'))
+            .catch((error) => console.log(error));
         }}
         validationSchema={formSchema}
       >
@@ -57,6 +61,7 @@ const LoginScreen = ({ navigation }) => {
               <Text style={styles.error}>
                 {props.touched.email && props.errors.email}
               </Text>
+
               <TextInput
                 style={styles.input}
                 placeholder='Password'
@@ -69,6 +74,7 @@ const LoginScreen = ({ navigation }) => {
               <Text style={styles.error}>
                 {props.touched.password && props.errors.password}
               </Text>
+
               <TouchableOpacity
                 style={styles.btnContainer}
                 onPress={props.handleSubmit}
