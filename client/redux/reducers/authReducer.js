@@ -21,10 +21,22 @@ const authReducer = (state = initialState, action) => {
         users: payload,
       };
 
+    case REGISTER_USER_FAIL:
+      return {
+        ...state,
+        errors: payload,
+      };
+
     case LOGIN_USER_SUCCESS:
       return {
         ...state,
         users: payload,
+      };
+
+    case LOGIN_USER_FAIL:
+      return {
+        ...state,
+        errors: payload,
       };
 
     default:

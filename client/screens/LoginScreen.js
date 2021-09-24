@@ -7,12 +7,13 @@ import {
   TextInput,
   TouchableOpacity,
   Platform,
+  Alert,
 } from 'react-native';
 import React from 'react';
 import { Formik } from 'formik';
 import * as yup from 'yup';
 import { useDispatch } from 'react-redux';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as AuthActions from '../redux/actions/authActions';
 
 const formSchema = yup.object({
@@ -34,7 +35,18 @@ const LoginScreen = ({ navigation }) => {
         }}
         onSubmit={(values) => {
           dispatch(AuthActions.loginUser(values))
-            .then(() => navigation.navigate('home'))
+            .then((result) => {
+              if (result.success) {
+                try {
+                  AsyncStorage.setItem('token', result.token);
+                  navigation.navigate('home');
+                } catch (error) {
+                  console.log(error);
+                }
+              } else {
+                Alert.alert(result.message);
+              }
+            })
             .catch((error) => console.log(error));
         }}
         validationSchema={formSchema}

@@ -8,39 +8,59 @@ export const LOGIN_USER_FAIL = 'LOGIN_USER_FAIL';
 const BASE_URL = 'http://192.168.1.25:3000';
 
 // registering new user action
-export const registerUser = (newUser) => async (dispatch) => {
-  try {
-    const registeredUser = await axios.post(
-      `${BASE_URL}/api/users/register`,
-      newUser
-    );
+export const registerUser = (newUser) => {
+  const { fullName, email, password } = newUser;
 
-    dispatch({
-      type: REGISTER_USER_SUCCESS,
-      payload: registeredUser.data,
+  return async (dispatch) => {
+    const result = await fetch(`${BASE_URL}/api/users/register`, {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        fullName,
+        email,
+        password,
+      }),
     });
-  } catch (error) {
-    console.log(error);
-    dispatch({
-      type: REGISTER_USER_FAIL,
-      payload: error,
-    });
-  }
+    const resultData = await result.json();
+
+    console.log(resultData);
+
+    resultData.success
+      ? dispatch({ type: REGISTER_USER_SUCCESS, payload: resultData })
+      : dispatch({ type: REGISTER_USER_FAIL, payload: resultData });
+
+    return resultData;
+  };
 };
 
-export const loginUser = (user) => async (dispatch) => {
-  try {
-    const loggedUser = await axios.post(`${BASE_URL}/api/users/login`, user);
+export const loginUser = (user) => {
+  const { email, password } = user;
 
-    dispatch({
-      type: LOGIN_USER_SUCCESS,
-      payload: loggedUser.data,
+  return async (dispatch) => {
+    const result = await fetch(`${BASE_URL}/api/users/login`, {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
     });
-  } catch (error) {
-    console.log(error);
-    dispatch({
-      type: LOGIN_USER_FAIL,
-      payload: error,
-    });
-  }
+    const resultData = await result.json();
+
+    resultData.success
+      ? dispatch({
+          type: LOGIN_USER_SUCCESS,
+          payload: resultData,
+        })
+      : dispatch({
+          type: LOGIN_USER_FAIL,
+          payload: resultData,
+        });
+
+    return resultData;
+  };
 };
